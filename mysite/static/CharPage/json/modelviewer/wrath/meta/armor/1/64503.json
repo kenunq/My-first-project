@@ -742,17 +742,14 @@
     "ParticleColor": null
   },
   "Creature": null,
-  "RaceFlags": 0,
-  "ChrModelFlags": 0,
-  "Race": 0,
-  "Gender": 0,
+  "Character": null,
   "ItemEffects": null,
   "Equipment": null,
   "ComponentTextures": null,
   "ComponentModels": {
     "0": 2207
   },
-  "stateKit": null,
-  "stateKits": null,
+  "StateKit": null,
+  "StateKits": null,
   "Scale": 1.0
 }

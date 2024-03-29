@@ -10,9 +10,11 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.handlers.asgi import ASGIRequest
+from django.db import connection
 from django.db.models import QuerySet
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -101,7 +103,7 @@ class ZamimgProxyView(View):
 
 
 class CharPageView(View):
-    """#### Представление которое генерирует uuid4\
+    """Представление которое генерирует uuid4\
     и использует его для создания уникального url адреса для примерочной страницы."""
 
     def get(self, request, *args, **kwargs):
@@ -109,7 +111,7 @@ class CharPageView(View):
 
 
 class UniqueCharPageView(TitleMixin, TemplateView):
-    """#### Представление обрабатывающее примерочную страницу."""
+    """Представление обрабатывающее примерочную страницу."""
 
     template_name = "index.html"
     title = "Персонаж"
@@ -156,6 +158,22 @@ class UniqueCharPageView(TitleMixin, TemplateView):
         )
         return my_saved_rooms, dressing_rooms
 
+    def create_my_saved_rooms(
+        self,
+        last_update_time: datetime,
+        room_id: str,
+        allow_edit: bool = False,
+        race: int = 1,
+        gender: int = 1,
+    ) -> dict[str, Any]:
+        return {
+            "room_id": room_id,
+            "allow_edit": allow_edit,
+            "race": race,
+            "gender": gender,
+            "last_update_time": timezone.localtime(last_update_time).strftime("%d-%m-%Y %H:%M:%S"),
+        }
+
     def create_character_data(
         self,
         allow_edit: bool = False,
@@ -178,7 +196,6 @@ class UniqueCharPageView(TitleMixin, TemplateView):
 
         context = super().get_context_data(**kwargs)
         self.timezone_now = timezone.now()
-
         self.room_id = str(kwargs.get("room_id"))  # <class 'uuid.UUID'>
         self.dressing_room = CharModel.objects.filter(room_id=self.room_id)
 
@@ -224,14 +241,15 @@ class UniqueCharPageView(TitleMixin, TemplateView):
 
             self._time_checking()
 
-            # TODO: Спамит запросы
+            object_room = self.dressing_room[0]
             character_data = self.create_character_data(
-                self.dressing_room[0].allow_edit,
-                self.dressing_room[0].race,
-                self.dressing_room[0].gender,
-                self.dressing_room[0].items,
-                self.dressing_room[0].face,
+                object_room.allow_edit,
+                object_room.race,
+                object_room.gender,
+                object_room.items,
+                object_room.face,
             )
+
         else:
             self.is_room_creator = True
 
@@ -299,7 +317,7 @@ class UniqueCharPageView(TitleMixin, TemplateView):
 
             return JsonResponse({"status": "data was successfully saved"})
 
-        elif creator_id is None:
+        if creator_id is None:
             self.dressing_room.update(**data)
 
             return JsonResponse({"status": "data was successfully saved"})
@@ -330,7 +348,7 @@ class CreateCharView(TitleMixin, TemplateView):
         if context["creating"]:
             return redirect("char_page_room", self.room_id)
         # Иначе если создатель существует и не равен текущему пользователю - запрещаем доступ к странице
-        elif dressing_room[0].creator != self.request.user and dressing_room[0].creator != None:
+        if dressing_room[0].creator != self.request.user and dressing_room[0].creator != None:
             raise PermissionDenied()
 
         return super(CreateCharView, self).render_to_response(context, **response_kwargs)
