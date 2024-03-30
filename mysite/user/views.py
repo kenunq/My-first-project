@@ -75,7 +75,7 @@ class UserLoginView(TitleMixin, RedirectAuthUser, LoginView):
         remember_me = form.cleaned_data.get("remember_me")
         if not remember_me:
             self.request.session.set_expiry(0)
-        return super(UserLoginView, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class UserLogoutView(LoginRequiredMixin, LogoutView):
@@ -112,7 +112,7 @@ class UserResetPasswordView(TitleMixin, RedirectAuthUser, PasswordResetView):
         if self.request.COOKIES.get("reset_password"):
             messages.warning(self.request, "Пароль можно сбросить раз в 15 минут.")
             return redirect("user:login")
-        return super(UserResetPasswordView, self).render_to_response(context, **response_kwargs)
+        return super().render_to_response(context, **response_kwargs)
 
 
 class UserResetPasswordView2(RedirectAuthUser, TemplateView):
@@ -147,7 +147,7 @@ class PasswordResetCompleteCustomView(TitleMixin, RedirectAuthUser, PasswordRese
     title = "Успех!"
 
     def render_to_response(self, context, **response_kwargs):
-        response = super(PasswordResetCompleteCustomView, self).render_to_response(context, **response_kwargs)
+        response = super().render_to_response(context, **response_kwargs)
         time_delta = timedelta(minutes=15)
         response.set_cookie(
             key="reset_password",
@@ -166,7 +166,7 @@ class ProfileView(TitleMixin, LoginRequiredMixin, TemplateView):
     title = "Личный кабинет"
 
     def get_context_data(self, **kwargs):
-        context = super(ProfileView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         if self.request.session.get("PasswordChangeForm-errors"):
             context["PasswordChangeFormerrors"] = json.loads(self.request.session.get("PasswordChangeForm-errors", ""))
@@ -205,6 +205,7 @@ class ProfileView(TitleMixin, LoginRequiredMixin, TemplateView):
             current_site = "127.0.0.1:8000"
             send_update_email_message.delay(user.email, current_site, activation_url)
             return JsonResponse({"status": "email details were successfully updated"})
+        return None
 
 
 def profileView2(request):
@@ -222,6 +223,7 @@ def profileView2(request):
             change_form_errors = json.dumps(change_form.errors, default=str)
             request.session["PasswordChangeForm-errors"] = change_form_errors
         return redirect(reverse_lazy("user:profile"))
+    return None
 
 
 class UserConfirmEmailView(View):
@@ -237,8 +239,8 @@ class UserConfirmEmailView(View):
             user.email = email.decode("utf-8")
             user.save()
             return redirect("user:email_confirmed")
-        else:
-            return redirect("user:email_confirmation_failed")
+
+        return redirect("user:email_confirmation_failed")
 
 
 class EmailConfirmedView(TitleMixin, TemplateView):

@@ -9,7 +9,7 @@ from user.models import User
 # Create your tests here.
 
 
-class Test_Talents(TestCase):
+class TestTalents(TestCase):
     @classmethod
     def setUp(cls):
         cls.create_talent = {
@@ -25,12 +25,8 @@ class Test_Talents(TestCase):
         cls.user2_username = cls.user2_password = "user2"
         cls.user1_email, cls.user2_email = "user1@yandex.ru", "user2@yandex.ru"
 
-        cls.user1 = User.objects.create_user(
-            cls.user1_username, cls.user1_email, cls.user1_password
-        )
-        cls.user2 = User.objects.create_user(
-            cls.user2_username, cls.user2_email, cls.user2_password
-        )
+        cls.user1 = User.objects.create_user(cls.user1_username, cls.user1_email, cls.user1_password)
+        cls.user2 = User.objects.create_user(cls.user2_username, cls.user2_email, cls.user2_password)
 
         cls.room_id = "8d87df22-0506-4445-b143-dcb59713cb08"
         CharModel.objects.create(
@@ -58,55 +54,31 @@ class Test_Talents(TestCase):
         self.assertEquals(response.status_code, 200)
 
     def test_create_talent(self):
-        response = self.client.post(
-            reverse("talants"), self.create_talent, "application/json"
-        )
-        self.assertIn(
-            "access error", response.content.decode()
-        )  # Не авторизированный пользователь не может
+        response = self.client.post(reverse("talants"), self.create_talent, "application/json")
+        self.assertIn("access error", response.content.decode())  # Не авторизированный пользователь не может
         # создать таланты
 
-        self.assertTrue(
-            self.client.login(
-                username=self.user1_username, password=self.user1_password
-            )
-        )
-        response = self.client.post(
-            reverse("talants"), self.create_talent, "application/json"
-        )
-        self.assertIn(
-            "talents successfully saved", response.content.decode()
-        )  # Таланты успешно созданны
+        self.assertTrue(self.client.login(username=self.user1_username, password=self.user1_password))
+        response = self.client.post(reverse("talants"), self.create_talent, "application/json")
+        self.assertIn("talents successfully saved", response.content.decode())  # Таланты успешно созданны
 
-        response = self.client.post(
-            reverse("talants"), self.create_talent_with_char, "application/json"
-        )
+        response = self.client.post(reverse("talants"), self.create_talent_with_char, "application/json")
         self.assertIn(
             "talents are successfully saved and tied to the character",
             response.content.decode(),
         )  # Таланты
         # успешно созданы и привязаны к персонажу
 
-        response = self.client.post(
-            reverse("talants"), self.create_talent_with_char, "application/json"
-        )
+        response = self.client.post(reverse("talants"), self.create_talent_with_char, "application/json")
         self.assertIn(
             "talents are successfully saved and tied to the character",
             response.content.decode(),
         )  # Таланты
         # успешно созданы и привязаны к персонажу
 
-        response = self.client.post(
-            reverse("talants"), self.create_talent_with_char, "application/json"
-        )
-        self.assertIn(
-            "the character has too many talents", response.content.decode()
-        )  # Персонаж имеет слишком много
+        response = self.client.post(reverse("talants"), self.create_talent_with_char, "application/json")
+        self.assertIn("the character has too many talents", response.content.decode())  # Персонаж имеет слишком много
         # талантов
 
-        response = self.client.post(
-            reverse("talants"), self.deltalent, "application/json"
-        )
-        self.assertIn(
-            "data was successfully talent deleted", response.content.decode()
-        )  # Таланты успешно удалены
+        response = self.client.post(reverse("talants"), self.deltalent, "application/json")
+        self.assertIn("data was successfully talent deleted", response.content.decode())  # Таланты успешно удалены

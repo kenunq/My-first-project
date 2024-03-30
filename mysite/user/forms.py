@@ -4,36 +4,28 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import (
     AuthenticationForm,
-    UserChangeForm,
-    UserCreationForm,
+    PasswordChangeForm,
     PasswordResetForm,
     SetPasswordForm,
-    PasswordChangeForm,
+    UserChangeForm,
+    UserCreationForm,
 )
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
-from django.forms import CheckboxInput, BooleanField
+from django.forms import BooleanField, CheckboxInput
 from django.template import loader
 from django_recaptcha import widgets
-
-from user.models import User
-
 from django_recaptcha.fields import ReCaptchaField
 
 from mysite.celery import app as celery_app
+from user.models import User
 
 
 class UserRegistrationForm(UserCreationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={"id": "input-login"}))
 
-    password1 = forms.CharField(
-        widget=forms.PasswordInput(
-            {"id": "input-password", "autocomplete": "new-password"}
-        )
-    )
-    password2 = forms.CharField(
-        widget=forms.PasswordInput({"id": "input-repeat-password"})
-    )
+    password1 = forms.CharField(widget=forms.PasswordInput({"id": "input-password", "autocomplete": "new-password"}))
+    password2 = forms.CharField(widget=forms.PasswordInput({"id": "input-repeat-password"}))
     email = forms.CharField(widget=forms.EmailInput(attrs={"id": "input-email"}))
     captcha = ReCaptchaField(
         widget=widgets.ReCaptchaV2Checkbox(
@@ -109,9 +101,7 @@ class PasswordResetCustomForm(PasswordResetForm):
         super().__init__(*args, **kwargs)
 
         self.fields["email"].widget.attrs["id"] = "forgot_pass_input"
-        self.fields["email"].widget.attrs[
-            "onfocus"
-        ] = 'this.removeAttribute("readonly")'
+        self.fields["email"].widget.attrs["onfocus"] = 'this.removeAttribute("readonly")'
         self.fields["email"].label = ""
 
     class Meta:
@@ -150,9 +140,7 @@ class PasswordResetCustomForm(PasswordResetForm):
 
         if new_email:
             if not User.objects.filter(email=new_email).exists():
-                raise ValidationError(
-                    "Указанная электронная почта не привязана ни к одному аккаунту."
-                )
+                raise ValidationError("Указанная электронная почта не привязана ни к одному аккаунту.")
 
             return new_email
 
@@ -174,9 +162,7 @@ class PasswordChangeForm(PasswordChangeForm):
     """#### Форма для изменения пароля."""
 
     old_password = forms.CharField(
-        widget=forms.PasswordInput(
-            {"id": "old_password_input", "autocomplete": "new-password"}
-        )
+        widget=forms.PasswordInput({"id": "old_password_input", "autocomplete": "new-password"})
     )
 
     def __init__(self, *args, **kwargs):

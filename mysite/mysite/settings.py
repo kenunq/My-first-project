@@ -18,7 +18,6 @@ from pathlib import Path
 from celery.schedules import crontab
 from decouple import config
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -68,7 +67,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "common.middleware.count_users_online",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",  # debug toolbar
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",  # debug toolbar
 ]
 
 INTERNAL_IPS = ["127.0.0.1"]

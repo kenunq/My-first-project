@@ -20,6 +20,7 @@ from services.models import (
 
 from .tasks import send_telegram_message
 
+
 # Create your views here.
 
 
@@ -30,7 +31,7 @@ class ServicesView(TitleMixin, TemplateView):
     title = "Заказать услугу"
 
     def get_context_data(self, **kwargs):
-        context = super(ServicesView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         context["types"] = TypeModel.objects.all()
 
@@ -48,10 +49,7 @@ class ServicesView(TitleMixin, TemplateView):
 
     def post(self, request: ASGIRequest, *args, **kwargs):
         data: dict = json.loads(request.body)
-        if not self.request.user.is_anonymous:
-            creator = self.request.user
-        else:
-            creator = None
+        creator = self.request.user if not self.request.user.is_anonymous else None
 
         comment = data.get("comment", "")
         telegram_id = MentorModel.objects.get(name=data["mentor"]).telegram_id
@@ -89,10 +87,10 @@ class SuccessAddView(TitleMixin, TemplateView):
         if not context.get("mentor"):
             return redirect(reverse("services:services"))
 
-        return super(SuccessAddView, self).render_to_response(context, **response_kwargs)
+        return super().render_to_response(context, **response_kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(SuccessAddView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         if self.request.session.get("mentor"):
             context["mentor"] = self.request.session["mentor"]

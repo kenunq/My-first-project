@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from support.models import ChatRoom, Message
 
+
 # Register your models here.
 
 admin.site.register(Message)

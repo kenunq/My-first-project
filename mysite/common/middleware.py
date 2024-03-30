@@ -1,7 +1,6 @@
-from django.utils import timezone
-
 from django.core.cache import cache
 from django.core.handlers.asgi import ASGIRequest
+from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
 
 from user.models import User
@@ -12,10 +11,7 @@ class count_users_online(MiddlewareMixin):
 
     def process_request(self, request: ASGIRequest):
         x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-        if x_forwarded_for:
-            current_user_ip = x_forwarded_for.split(",")[0]
-        else:
-            current_user_ip = request.META.get("REMOTE_ADDR")
+        current_user_ip = x_forwarded_for.split(",")[0] if x_forwarded_for else request.META.get("REMOTE_ADDR")
 
         if not current_user_ip:
             return  # принудительно завершаем выполнение middleware
@@ -24,17 +20,13 @@ class count_users_online(MiddlewareMixin):
         cached_user_ips = cache.get("online-now-user-ips", [])
 
         # добавляем префикс к ip пользователей
-        user_ips_with_prefix = [
-            f"online-user-ip-{user_ip}" for user_ip in cached_user_ips
-        ]
+        user_ips_with_prefix = [f"online-user-ip-{user_ip}" for user_ip in cached_user_ips]
 
         # получаем пользователей которые есть в кэше по префиксу + ip
         fresh_user_ips = cache.get_many(user_ips_with_prefix).keys()
 
         # убираем префикс
-        online_now_user_ips = [
-            user_ip.replace("online-user-ip-", "") for user_ip in fresh_user_ips
-        ]
+        online_now_user_ips = [user_ip.replace("online-user-ip-", "") for user_ip in fresh_user_ips]
 
         # добавляем текущего пользователя если его нету в списке
         if current_user_ip not in online_now_user_ips:
@@ -48,9 +40,7 @@ class count_users_online(MiddlewareMixin):
             last_login = cache.get(cache_key)
 
             if not last_login:
-                User.objects.filter(id=request.user.id).update(
-                    last_login=timezone.now()
-                )
+                User.objects.filter(id=request.user.id).update(last_login=timezone.now())
                 # Устанавливаем кэширование на 300 секунд с текущей датой по ключу last-seen-id-пользователя
                 cache.set(cache_key, timezone.now(), self.seconds_alive)
 

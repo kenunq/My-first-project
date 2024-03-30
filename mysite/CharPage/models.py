@@ -48,67 +48,62 @@ class CharModel(models.Model):
         34: "Darkirondwarf",
         35: "Vulpera",
         36: "Magharorc",
-        37: "Mechagnome"
+        37: "Mechagnome",
     }
 
     RACES_WITHOUT_ICON = (
-        12, # "Felorc"
-        13, # "Naga_"
-        14, # "Broken"
-        15, # "Skeleton"
-        16, # "Vrykul"
-        17, # "Tuskarr"
-        18, # "Foresttroll"
-        19, # "Taunka"
-        20, # "Northrendskeleton"
-        21, # "Icetroll"
+        12,  # "Felorc"
+        13,  # "Naga_"
+        14,  # "Broken"
+        15,  # "Skeleton"
+        16,  # "Vrykul"
+        17,  # "Tuskarr"
+        18,  # "Foresttroll"
+        19,  # "Taunka"
+        20,  # "Northrendskeleton"
+        21,  # "Icetroll"
         # 23, # "Gilnean"
         # 25, # "Pandarena"
         # 26, # "Pandarenh"
-        33  # "Thinhuman"
+        33,  # "Thinhuman"
     )
 
-    GENDERS = {
-        0: 'Male',
-        1: 'Female'
-    }
+    GENDERS = {0: "Male", 1: "Female"}
 
-    DEFAULT_ICON_URL = 'https://wow.zamimg.com/images/wow/icons/large/'
+    DEFAULT_ICON_URL = "https://wow.zamimg.com/images/wow/icons/large/"
 
-    room_id = models.CharField(max_length=45, verbose_name='Id комнаты')
+    room_id = models.CharField(max_length=45, verbose_name="Id комнаты")
 
-    creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True,
-                                verbose_name='Создатель комнаты')
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name="Создатель комнаты")
 
-    last_update_time = models.DateTimeField(verbose_name='Время последнего изменения')
+    last_update_time = models.DateTimeField(verbose_name="Время последнего изменения")
 
-    allow_edit = models.BooleanField(verbose_name='Разрешить редактирование')
+    allow_edit = models.BooleanField(verbose_name="Разрешить редактирование")
 
-    creating = models.BooleanField(verbose_name='Персонаж создан?', default=False)
+    creating = models.BooleanField(verbose_name="Персонаж создан?", default=False)
 
-    char_name = models.CharField(max_length=32, verbose_name='Имя персонажа', default='')
+    char_name = models.CharField(max_length=32, verbose_name="Имя персонажа", default="")
 
-    proffesions = models.CharField(max_length=32, verbose_name='Профессии', default='[0,0]')
+    proffesions = models.CharField(max_length=32, verbose_name="Профессии", default="[0,0]")
 
-    talents = models.ManyToManyField(TalentsModel, null=True, verbose_name='Привязанные таланты')
+    talents = models.ManyToManyField(TalentsModel, verbose_name="Привязанные таланты")
 
-    char_class = models.CharField(max_length=32, verbose_name='Класс персонажа', default='')
+    char_class = models.CharField(max_length=32, verbose_name="Класс персонажа", default="")
 
-    race = models.IntegerField(verbose_name='Раса')
+    race = models.IntegerField(verbose_name="Раса")
 
-    gender = models.IntegerField(verbose_name='Пол')
+    gender = models.IntegerField(verbose_name="Пол")
 
-    items = models.CharField(max_length=1024, verbose_name='Экипировка', blank=True)
+    items = models.CharField(max_length=1024, verbose_name="Экипировка", blank=True)
 
-    face = models.CharField(max_length=150, verbose_name='Внешность')
-
-    def __str__(self):
-        return 'Комната: ' + self.room_id
-
-    def get_absolute_url(self):
-        return reverse('char', kwargs={'room_id': self.room_id})
+    face = models.CharField(max_length=150, verbose_name="Внешность")
 
     class Meta:
-        verbose_name = 'Персонажу'
-        verbose_name_plural = 'Персонажи'
+        verbose_name = "Персонажу"
+        verbose_name_plural = "Персонажи"
 
+    def __str__(self):
+        return "Комната: " + self.room_id
+
+    def get_absolute_url(self):
+        return reverse("char", kwargs={"room_id": self.room_id})

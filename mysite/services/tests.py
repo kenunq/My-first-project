@@ -7,7 +7,7 @@ from services.models import MentorModel
 # Create your tests here.
 
 
-class Test_ServicesPage(TestCase):
+class TestServicesPage(TestCase):
     @classmethod
     def setUp(cls):
         cls.data = {
@@ -28,32 +28,18 @@ class Test_ServicesPage(TestCase):
         self.assertEquals(response.status_code, 200)  # страница успешно отобразилась
 
     def test_send_message(self):
-        response = self.client.post(
-            reverse("services:services"), self.data, "application/json; utf-8"
-        )
-        self.assertIn(
-            "message sent successfully", response.content.decode()
-        )  # Сообщение успешно отправилось
+        response = self.client.post(reverse("services:services"), self.data, "application/json; utf-8")
+        self.assertIn("message sent successfully", response.content.decode())  # Сообщение успешно отправилось
 
     def test_success_send_message_page(self):
         response = self.client.get(reverse("services:success_add"))
-        self.assertEquals(
-            response.status_code, 302
-        )  # Пользователь перенаправляется на страницу создания записи
+        self.assertEquals(response.status_code, 302)  # Пользователь перенаправляется на страницу создания записи
 
-        response = self.client.post(
-            reverse("services:services"), self.data, "application/json; utf-8"
-        )
-        self.assertIn(
-            "message sent successfully", response.content.decode()
-        )  # Сообщение успешно отправилось
+        response = self.client.post(reverse("services:services"), self.data, "application/json; utf-8")
+        self.assertIn("message sent successfully", response.content.decode())  # Сообщение успешно отправилось
 
         response = self.client.get(reverse("services:success_add"))
-        self.assertEquals(
-            response.status_code, 200
-        )  # Страница с успешным отправлением успешно отобразилась
+        self.assertEquals(response.status_code, 200)  # Страница с успешным отправлением успешно отобразилась
 
         response = self.client.get(reverse("services:success_add"))
-        self.assertEquals(
-            response.status_code, 302
-        )  # При повторном заходе на страницу пользователь перенаправляется
+        self.assertEquals(response.status_code, 302)  # При повторном заходе на страницу пользователь перенаправляется

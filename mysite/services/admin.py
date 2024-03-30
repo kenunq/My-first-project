@@ -1,13 +1,13 @@
 from django.contrib import admin
 
 from services.models import (
+    ClassModel,
+    CommunicationModel,
+    FractionModel,
+    MentorModel,
+    ServerModel,
     ServicesModel,
     TypeModel,
-    CommunicationModel,
-    MentorModel,
-    ClassModel,
-    FractionModel,
-    ServerModel,
 )
 
 

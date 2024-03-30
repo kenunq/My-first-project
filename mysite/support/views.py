@@ -23,10 +23,10 @@ class SupportChatView(TitleMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if not self.request.COOKIES.get("userID") and self.request.user.is_anonymous:
             return redirect("home")
-        return super(SupportChatView, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(SupportChatView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         if not self.request.user.is_anonymous:
             user_id = self.request.user.id
@@ -46,7 +46,7 @@ class SupportChatView(TitleMixin, TemplateView):
         return context
 
     def render_to_response(self, context, **response_kwargs):
-        response = super(SupportChatView, self).render_to_response(context, **response_kwargs)
+        response = super().render_to_response(context, **response_kwargs)
 
         if self.request.user.is_superuser:
             return redirect("support:admin-chat")
@@ -61,7 +61,7 @@ class AdminSupportChatView(TitleMixin, TemplateView):
     title = "Техническая поддержка"
 
     def get_context_data(self, **kwargs):
-        context = super(AdminSupportChatView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         if self.request.GET.get("user-id"):
             user_id = self.request.GET.get("user-id")
@@ -106,9 +106,10 @@ class AdminSupportChatView(TitleMixin, TemplateView):
             chat_room.state = data["change_state"]
             chat_room.save()
             return JsonResponse({"status": "status changed successfully"})
+        return None
 
     def render_to_response(self, context, **response_kwargs):
-        response = super(AdminSupportChatView, self).render_to_response(context, **response_kwargs)
+        response = super().render_to_response(context, **response_kwargs)
 
         if not self.request.user.is_superuser:
             return redirect("support:chat")

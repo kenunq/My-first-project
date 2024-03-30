@@ -8,6 +8,4 @@ from addons.models import Order
 
 @shared_task
 def clear_orders():
-    Order.objects.filter(
-        status=False, created_at__lte=timezone.now() - timedelta(hours=1)
-    ).delete()
+    Order.objects.filter(status=False, created_at__lte=timezone.now() - timedelta(hours=1)).delete()

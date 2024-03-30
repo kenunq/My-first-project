@@ -5,7 +5,7 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.layers import get_channel_layer
 
-from support.models import Message, ChatRoom
+from support.models import ChatRoom, Message
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -14,9 +14,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["user_id"]
         self.room_group_name = f"chat_{self.room_name}"
-        self.user_id = (
-            self.scope["user"].id if self.scope["user"].username else self.room_name
-        )
+        self.user_id = self.scope["user"].id if self.scope["user"].username else self.room_name
 
         # Присоединение к комнате
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
@@ -44,9 +42,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "message": message,
                     "sended_time": sended_time,
                     "user_id": user_id,
-                    "username": self.scope["user"].username
-                    if self.scope["user"].username
-                    else "Anonymous",
+                    "username": self.scope["user"].username if self.scope["user"].username else "Anonymous",
                 },
             )
 
@@ -60,17 +56,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "message": message,
                     "sended_time": sended_time,
                     "user_id": self.room_name,
-                    "username": self.scope["user"].username
-                    if self.scope["user"].username
-                    else "Anonymous",
+                    "username": self.scope["user"].username if self.scope["user"].username else "Anonymous",
                 },
             )
 
         # добавление польователя в список присоединенных пользователей
         if type == "connect":
-            self.connected_users.setdefault(self.room_name, set()).add(
-                str(self.user_id)
-            )
+            self.connected_users.setdefault(self.room_name, set()).add(str(self.user_id))
             await self.send_user_list()
 
     async def chat_message(self, event):
@@ -88,9 +80,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def create_message(self, body, user_id, sended_time):
-        message = Message.objects.create(
-            body=body, user_id=user_id, sended_time=sended_time
-        )
+        message = Message.objects.create(body=body, user_id=user_id, sended_time=sended_time)
         chat_room = ChatRoom.objects.get(slug=self.room_name)
         chat_room.messages.add(message)
         chat_room.last_message = message.body
@@ -103,15 +93,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         user_ids = list(self.connected_users.get(self.room_name, set()))
 
         # Отправляем обновленный список пользователей всем участникам комнаты
-        await self.channel_layer.group_send(
-            self.room_group_name, {"type": "user_list", "user_ids": user_ids}
-        )
+        await self.channel_layer.group_send(self.room_group_name, {"type": "user_list", "user_ids": user_ids})
 
     async def user_list(self, event):
         # Отправляем обновленный список пользователей только конкретному пользователю
-        await self.send(
-            text_data=json.dumps({"type": event["type"], "user_ids": event["user_ids"]})
-        )
+        await self.send(text_data=json.dumps({"type": event["type"], "user_ids": event["user_ids"]}))
 
 
 class AdminChatConsumer(AsyncWebsocketConsumer):

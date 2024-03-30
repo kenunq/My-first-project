@@ -15,12 +15,8 @@ class ServicesModel(models.Model):
     mentor = models.CharField(max_length=32, verbose_name="Ментор")
     communication = models.CharField(max_length=32, verbose_name="Способ связи")
     username = models.CharField(max_length=64, verbose_name="Имя пользователя")
-    comment = models.CharField(
-        max_length=264, null=True, verbose_name="Дополнительный комментарий"
-    )
-    creator = models.ForeignKey(
-        User, on_delete=models.CASCADE, null=True, verbose_name="Создатель услуги"
-    )
+    comment = models.CharField(max_length=264, null=True, verbose_name="Дополнительный комментарий")
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name="Создатель услуги")
     time_of_create = models.DateTimeField(verbose_name="Время создания услуги")
 
     def __str__(self):

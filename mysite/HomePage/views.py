@@ -11,9 +11,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
 from proxy.views import proxy_view
 
-from HomePage.tasks import send_problem_message
-
 from common.mixin.views import TitleMixin
+from HomePage.tasks import send_problem_message
 
 
 class HomePageView(TitleMixin, TemplateView):
@@ -38,9 +37,7 @@ class HomePageView(TitleMixin, TemplateView):
 
         if request.GET.get("data") == "item-scaling":
             return HttpResponse(
-                open(
-                    "./static/js/javascript/data-item-scaling.js", "r", encoding="utf-8"
-                ),
+                open("./static/js/javascript/data-item-scaling.js", "r", encoding="utf-8"),
                 content_type="application/x-javascript; charset=utf-8",
             )
 
@@ -70,20 +67,13 @@ class HomePageView(TitleMixin, TemplateView):
         return JsonResponse({"status": "complaint not sent"})
 
     def render_to_response(self, context, **response_kwargs):
-        response = super(HomePageView, self).render_to_response(
-            context, **response_kwargs
-        )
+        response = super().render_to_response(context, **response_kwargs)
 
-        if self.request.user.is_anonymous:
-            if not self.request.COOKIES.get("userID"):
-                response.set_cookie(
-                    key="userID", value=uuid.uuid4(), domain=settings.PARENT_DOMAIN
-                )
+        if self.request.user.is_anonymous and not self.request.COOKIES.get("userID"):
+            response.set_cookie(key="userID", value=uuid.uuid4(), domain=settings.PARENT_DOMAIN)
 
         if not self.request.COOKIES.get("ctrEnterWidget"):
-            response.set_cookie(
-                key="ctrEnterWidget", value="close", domain=settings.PARENT_DOMAIN
-            )
+            response.set_cookie(key="ctrEnterWidget", value="close", domain=settings.PARENT_DOMAIN)
 
         return response
 
@@ -136,9 +126,7 @@ def page_not_found(request: ASGIRequest, exception: BadRequest) -> HttpResponse:
 def server_error(request: ASGIRequest) -> HttpResponse:
     """Обработка ошибки 500"""
 
-    error_msg = (
-        "Cервер столкнулся с неожиданной ошибкой, администрация уже работает над этим."
-    )
+    error_msg = "Cервер столкнулся с неожиданной ошибкой, администрация уже работает над этим."
 
     return render(
         request=request,

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db.models import TextField
 from tinymce.widgets import TinyMCE
 
-from addons.models import AddonCategory, Addon, AddonImage, Compatible_Versions, Order
+from addons.models import Addon, AddonCategory, AddonImage, Compatible_Versions, Order
 
 
 # Register your models here.

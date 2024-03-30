@@ -21,15 +21,13 @@ class TalantsView(TitleMixin, TemplateView):
     title = "Таланты"
 
     def get_context_data(self, **kwargs):
-        context = super(TalantsView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         creator = self.request.user
 
         if not creator.is_anonymous:
             # оборачиваем в лист для корректной работы {% if user_talents|length > 0 %}
-            context["user_talents"] = list(
-                reversed(TalentsModel.objects.filter(creator=creator))
-            )
+            context["user_talents"] = list(reversed(TalentsModel.objects.filter(creator=creator)))
             # отображаем персонажей у которых привязано меньше двух талантов
             context["chars"] = reversed(
                 CharModel.objects.annotate(num_talents=Count("talents")).filter(
@@ -64,20 +62,15 @@ class TalantsView(TitleMixin, TemplateView):
                 )
                 bids.charmodel_set.add(char)
                 bids.save()
-                return JsonResponse(
-                    {
-                        "status": "talents are successfully saved and tied to the character"
-                    }
-                )
-            else:
-                return JsonResponse({"status": "the character has too many talents"})
-        else:
-            bids = TalentsModel(
-                name=data["name"],
-                creator=creator,
-                url=data["url"],
-                talent_class=data["class"],
-                talent_spec=data["spec"],
-            )
-            bids.save()
-            return JsonResponse({"status": "talents successfully saved"})
+                return JsonResponse({"status": "talents are successfully saved and tied to the character"})
+            return JsonResponse({"status": "the character has too many talents"})
+
+        bids = TalentsModel(
+            name=data["name"],
+            creator=creator,
+            url=data["url"],
+            talent_class=data["class"],
+            talent_spec=data["spec"],
+        )
+        bids.save()
+        return JsonResponse({"status": "talents successfully saved"})

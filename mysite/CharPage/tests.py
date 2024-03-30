@@ -9,7 +9,7 @@ from user.models import User
 # Create your tests here.
 
 
-class Test_charpage(TestCase):
+class TestCharpage(TestCase):
     @classmethod
     def setUp(cls):
         cls.user1_username = cls.user1_password = "user1"
@@ -34,12 +34,8 @@ class Test_charpage(TestCase):
         }
         cls.delate_char_data = {"delchar_id": cls.room_id}
 
-        cls.user1 = User.objects.create_user(
-            cls.user1_username, cls.user1_email, cls.user1_password
-        )
-        cls.user2 = User.objects.create_user(
-            cls.user2_username, cls.user2_email, cls.user2_password
-        )
+        cls.user1 = User.objects.create_user(cls.user1_username, cls.user1_email, cls.user1_password)
+        cls.user2 = User.objects.create_user(cls.user2_username, cls.user2_email, cls.user2_password)
 
     def test_redirect_on_open_charlist_anonymous(self):
         response = self.client.get(reverse("char_list"))
@@ -48,11 +44,7 @@ class Test_charpage(TestCase):
         self.assertEquals(response.url, "/char/")
 
     def test_redirect_on_open_charlist_authenticated(self):
-        self.assertTrue(
-            self.client.login(
-                username=self.user1_username, password=self.user1_password
-            )
-        )
+        self.assertTrue(self.client.login(username=self.user1_username, password=self.user1_password))
         response = self.client.get(reverse("char_list"))
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, "char_list_page.html")
@@ -73,67 +65,43 @@ class Test_charpage(TestCase):
         response = self.client.get(reverse("createchar", args=(self.room_id,)))
         self.assertEquals(response.status_code, 403)  # PermissionDenied
 
-        self.assertTrue(
-            self.client.login(
-                username=self.user1_username, password=self.user1_password
-            )
-        )
+        self.assertTrue(self.client.login(username=self.user1_username, password=self.user1_password))
         response = self.client.get(reverse("createchar", args=(self.room_id,)))
-        self.assertEquals(
-            response.status_code, 200
-        )  # страница с созданием персонажа успешно отобразилась
+        self.assertEquals(response.status_code, 200)  # страница с созданием персонажа успешно отобразилась
 
         response = self.client.get(reverse("char_page_room", args=(self.room_id,)))
-        self.assertEquals(
-            response.status_code, 302
-        )  # страница с персонажем успешно отобразилась
+        self.assertEquals(response.status_code, 302)  # страница с персонажем успешно отобразилась
 
         response = self.client.post(
             reverse("createchar", args=(self.room_id,)),
             self.create_char_data,
             "application/json",
         )
-        self.assertIn(
-            "data was successfully saved", response.content.decode()
-        )  # персонаж успешно создался
+        self.assertIn("data was successfully saved", response.content.decode())  # персонаж успешно создался
 
         response = self.client.get(reverse("char_list"))
-        self.assertIn(
-            "TestChar", response.content.decode()
-        )  # созданный персонаж отобразился в списке персонажей
+        self.assertIn("TestChar", response.content.decode())  # созданный персонаж отобразился в списке персонажей
 
         response = self.client.get(reverse("char_page_room", args=(self.room_id,)))
-        self.assertEquals(
-            response.status_code, 200
-        )  # страница с персонажем успешно отобразилась
+        self.assertEquals(response.status_code, 200)  # страница с персонажем успешно отобразилась
         self.assertEquals("TestChar", response.context_data["name"])
-        self.assertEquals(
-            True, response.context_data["is_creator"]
-        )  # пользователь является создателем комнаты
-        self.assertIn(
-            "Добавить таланты", response.content.decode()
-        )  # Создатель может добавить таланты персонажу
+        self.assertEquals(True, response.context_data["is_creator"])  # пользователь является создателем комнаты
+        self.assertIn("Добавить таланты", response.content.decode())  # Создатель может добавить таланты персонажу
 
         response = self.client.get(reverse("createchar", args=(self.room_id,)))
-        self.assertEquals(
-            response.status_code, 302
-        )  # Созданному персонажу нельзя изменить внешность
+        self.assertEquals(response.status_code, 302)  # Созданному персонажу нельзя изменить внешность
 
         response = self.client.post(
             reverse("char_page_room", args=(self.room_id,)),
             self.update_char_data,
             "application/json",
         )
-        self.assertIn(
-            "data was successfully saved", response.content.decode()
-        )  # конфигурация персонажа обновилась
+        self.assertIn("data was successfully saved", response.content.decode())  # конфигурация персонажа обновилась
 
         self.client.logout()
 
         response = self.client.get(reverse("char_page_room", args=(self.room_id,)))
-        self.assertEquals(
-            response.status_code, 200
-        )  # страница с персонажем успешно отобразилась
+        self.assertEquals(response.status_code, 200)  # страница с персонажем успешно отобразилась
         self.assertEquals(
             False, response.context_data["is_creator"]
         )  # анонимный пользователь не является создателем комнаты
@@ -145,20 +113,12 @@ class Test_charpage(TestCase):
             self.update_char_data,
             "application/json",
         )
-        self.assertNotIn(
-            "data was successfully saved", response.content.decode()
-        )  # конфигурация персонажа не
+        self.assertNotIn("data was successfully saved", response.content.decode())  # конфигурация персонажа не
         # обновилась
 
-        self.assertTrue(
-            self.client.login(
-                username=self.user2_username, password=self.user2_password
-            )
-        )
+        self.assertTrue(self.client.login(username=self.user2_username, password=self.user2_password))
         response = self.client.get(reverse("char_page_room", args=(self.room_id,)))
-        self.assertEquals(
-            response.status_code, 200
-        )  # страница с персонажем успешно отобразилась
+        self.assertEquals(response.status_code, 200)  # страница с персонажем успешно отобразилась
         self.assertEquals(
             False, response.context_data["is_creator"]
         )  # другой пользователь не является создателем комнаты
@@ -170,27 +130,13 @@ class Test_charpage(TestCase):
             self.update_char_data,
             "application/json",
         )
-        self.assertNotIn(
-            "data was successfully saved", response.content.decode()
-        )  # конфигурация персонажа не
+        self.assertNotIn("data was successfully saved", response.content.decode())  # конфигурация персонажа не
         # обновилась
-        response = self.client.post(
-            reverse("char_list"), self.delate_char_data, "application/json"
-        )
-        self.assertIn(
-            "access error", response.content.decode()
-        )  # Не создатель персонажа не может удалить персонажа
+        response = self.client.post(reverse("char_list"), self.delate_char_data, "application/json")
+        self.assertIn("access error", response.content.decode())  # Не создатель персонажа не может удалить персонажа
 
         self.client.logout()
 
-        self.assertTrue(
-            self.client.login(
-                username=self.user1_username, password=self.user1_password
-            )
-        )
-        response = self.client.post(
-            reverse("char_list"), self.delate_char_data, "application/json"
-        )
-        self.assertIn(
-            "The character has been successfully deleted", response.content.decode()
-        )  # Персонаж удалился
+        self.assertTrue(self.client.login(username=self.user1_username, password=self.user1_password))
+        response = self.client.post(reverse("char_list"), self.delate_char_data, "application/json")
+        self.assertIn("The character has been successfully deleted", response.content.decode())  # Персонаж удалился

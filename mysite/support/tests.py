@@ -1,6 +1,5 @@
-from asgiref.sync import sync_to_async
 from channels.db import database_sync_to_async
-from channels.testing import ApplicationCommunicator, ChannelsLiveServerTestCase, WebsocketCommunicator
+from channels.testing import ChannelsLiveServerTestCase, WebsocketCommunicator
 from django.test import TestCase
 from django.urls import reverse
 
@@ -12,7 +11,7 @@ from user.models import User
 # Create your tests here.
 
 
-class Test_SupportPage(TestCase):
+class TestSupportPage(TestCase):
     @classmethod
     def setUp(cls):
         cls.user1_username = cls.user1_password = "user1"

@@ -23,7 +23,7 @@ class AddonsView(TitleMixin, ListView):
 
     # paginate_by = 4
     def get_queryset(self):
-        queryset = super(AddonsView, self).get_queryset()
+        queryset = super().get_queryset()
         category_id = self.kwargs.get("category_id")
         if category_id:
             cache.clear()
@@ -38,15 +38,15 @@ class AddonsView(TitleMixin, ListView):
                 if category_id
                 else queryset.filter(is_published=True).order_by(list_filter.get(filter, ""))
             )
-        else:
-            return (
-                queryset.filter(category__id=category_id, is_published=True)
-                if category_id
-                else queryset.filter(is_published=True)
-            )
+
+        return (
+            queryset.filter(category__id=category_id, is_published=True)
+            if category_id
+            else queryset.filter(is_published=True)
+        )
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        context = super(AddonsView, self).get_context_data()
+        context = super().get_context_data()
 
         user = self.request.user
 
@@ -70,7 +70,7 @@ class AddonPageView(TemplateView):
     template_name = "addons/addon_page.html"
 
     def get_context_data(self, **kwargs):
-        context = super(AddonPageView, self).get_context_data()
+        context = super().get_context_data()
 
         context["addon"] = Addon.objects.filter(slug=kwargs["addon_slug"])[0]
 
@@ -84,9 +84,7 @@ class AddonPageView(TemplateView):
             currency = "RUB"
             order = Order.objects.create(user=self.request.user, addon=context["addon"])
             sign = hashlib.md5(
-                f'{settings.MERCHANT_ID}:{context["addon"].price}:{settings.SECRET_WORD}:{currency}:{order.id}'.encode(
-                    "utf-8"
-                )
+                f'{settings.MERCHANT_ID}:{context["addon"].price}:{settings.SECRET_WORD}:{currency}:{order.id}'.encode()
             ).hexdigest()
             context["payment_url"] = (
                 f'https://pay.kassa.shop/?m={settings.MERCHANT_ID}&oa={context["addon"].price}&s={sign}&currency={currency}&o={order.id}'
@@ -108,8 +106,7 @@ def payment_alerts(request):
 
         return HttpResponse("YES")
 
-    else:
-        return HttpResponse("NO")
+    return HttpResponse("NO")
 
 
 class PaymentSuccess(TitleMixin, TemplateView):
