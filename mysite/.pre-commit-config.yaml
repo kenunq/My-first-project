@@ -1,0 +1,25 @@
+# Command:
+# 1. pip install pre-commit
+# 2. pre-commit install
+# 3. pre-commit run
+
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: 'v0.3.1'
+    hooks:
+      - id: ruff
+        name: Проверка кода ruff линтером.
+        args: [--fix, --exit-non-zero-on-fix, --silent]
+      - id: ruff-format
+        name: Проверка кода ruff форматтером.
+
+  - repo: local
+    hooks:
+      - id: migrations-check
+        name: "Проверка миграций"
+        entry: python manage.py makemigrations --check --dry-run
+        language: system
+        pass_filenames: false
+        types: [python]
+
